@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html id="theme_23" lang="id">
   <head>
@@ -231,8 +231,8 @@
                 <!-- Form Login Box -->
                 <div class="row justify-content-center" style="display: flex; justify-content: center;">
                   <div class="col-lg-6" style="width: 100%; max-width: 500px;">
-                    <div class="block-signin__card component_card">
-                      <div class="card">
+                    <div class="block-signin__card component_card" style="position: relative; z-index: 999;">
+                      <div class="card" style="position: relative; z-index: 999;">
                         
                         <!-- Tempat Muncul Notifikasi Error/Sukses -->
                         <div id="auth-alert" class="alert-msg"></div>
@@ -271,11 +271,11 @@
                             <div class="custom-col">
                               <div class="form-group">
                                 <!-- Tombol Login -->
-                                <button id="btn-login" class="btn btn-big-primary" type="button">
+                                <button id="btn-login" class="btn btn-big-primary" type="button" style="pointer-events: auto;">
                                   MASUK (LOGIN)
                                 </button>
                                 <!-- Tombol Daftar -->
-                                <button id="btn-register" class="btn btn-outline-primary" type="button">
+                                <button id="btn-register" class="btn btn-outline-primary" type="button" style="pointer-events: auto;">
                                   DAFTAR AKUN BARU
                                 </button>
                               </div>
@@ -299,122 +299,133 @@
     <!-- SCRIPT SUPABASE AUTH (LOGIN & REGISTER) -->
     <!-- ========================================== -->
     <script>
-      // 1. Inisialisasi Kredensial Supabase Anda
-      const SUPABASE_URL = 'https://ljmiqziybyhectnbsxgg.supabase.co';
-      const SUPABASE_ANON_KEY = 'sb_publishable_WhGbdt8mHMqdYja7RfqaHA_mhWEiKq6';
-      
-      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-      // Ambil elemen HTML
-      const emailInput = document.getElementById('auth-email');
-      const passwordInput = document.getElementById('auth-password');
-      const btnLogin = document.getElementById('btn-login');
-      const btnRegister = document.getElementById('btn-register');
-      const alertBox = document.getElementById('auth-alert');
-
-      // Fungsi untuk menampilkan pesan
-      function showAlert(message, isError = false) {
-        alertBox.style.display = 'block';
-        alertBox.textContent = message;
-        if (isError) {
-            alertBox.className = 'alert-msg alert-error';
-        } else {
-            alertBox.className = 'alert-msg alert-success';
-        }
-      }
-
-      // =====================================
-      // FUNGSI 1: LOGIN (MASUK)
-      // =====================================
-      btnLogin.addEventListener('click', async function(e) {
-        e.preventDefault();
-        
-        if(!emailInput.value || !passwordInput.value) {
-            showAlert('Mohon isi Email dan Password terlebih dahulu.', true);
-            return;
-        }
-
-        const originalText = btnLogin.innerHTML;
-        btnLogin.innerHTML = 'Memproses...';
-        btnLogin.disabled = true;
-        btnRegister.disabled = true;
-        alertBox.style.display = 'none';
-
-        try {
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: emailInput.value,
-                password: passwordInput.value,
-            });
-
-            if (error) {
-                showAlert('Gagal Login: ' + (error.message === 'Invalid login credentials' ? 'Email atau Password salah.' : error.message), true);
-            } else {
-                showAlert('Login Berhasil! Mengalihkan ke Dashboard...', false);
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html'; 
-                }, 1500);
-            }
-        } catch (err) {
-            showAlert('Terjadi kesalahan koneksi.', true);
-        } finally {
-            btnLogin.innerHTML = originalText;
-            btnLogin.disabled = false;
-            btnRegister.disabled = false;
-        }
-      });
-
-      // =====================================
-      // FUNGSI 2: REGISTER (DAFTAR BARU)
-      // =====================================
-      btnRegister.addEventListener('click', async function(e) {
-        e.preventDefault();
-        
-        if(!emailInput.value || !passwordInput.value) {
-            showAlert('Untuk mendaftar, isi kolom Email dan buat Password Anda.', true);
-            return;
-        }
-        if(passwordInput.value.length < 6) {
-            showAlert('Password minimal harus 6 karakter.', true);
-            return;
-        }
-
-        const originalText = btnRegister.innerHTML;
-        btnRegister.innerHTML = 'Mendaftarkan...';
-        btnLogin.disabled = true;
-        btnRegister.disabled = true;
-        alertBox.style.display = 'none';
-
-        try {
-            const { data, error } = await supabase.auth.signUp({
-                email: emailInput.value,
-                password: passwordInput.value,
-            });
-
-            if (error) {
-                showAlert('Gagal Daftar: ' + error.message, true);
-            } else {
-                // Jika sukses mendaftar
-                showAlert('Pendaftaran Berhasil! Silakan klik tombol MASUK (LOGIN).', false);
-                // Bersihkan password untuk keamanan
-                passwordInput.value = '';
-            }
-        } catch (err) {
-            showAlert('Terjadi kesalahan koneksi.', true);
-        } finally {
-            btnRegister.innerHTML = originalText;
-            btnLogin.disabled = false;
-            btnRegister.disabled = false;
-        }
-      });
-      
-      // Cek jika user sudah login sebelumnya (Auto Redirect)
-      async function checkSession() {
-          const { data: { session } } = await supabase.auth.getSession();
-          if (session) {
-              window.location.href = 'dashboard.html';
+      document.addEventListener('DOMContentLoaded', function() {
+          // Cek apakah library Supabase berhasil dimuat (Bisa diblokir AdBlock/Koneksi Lemah)
+          if (typeof window.supabase === 'undefined') {
+              const alertBox = document.getElementById('auth-alert');
+              alertBox.style.display = 'block';
+              alertBox.textContent = 'Gagal memuat sistem. Pastikan koneksi internet lancar dan matikan AdBlock jika ada.';
+              alertBox.className = 'alert-msg alert-error';
+              return;
           }
-      }
-      checkSession();
+
+          // 1. Inisialisasi Kredensial Supabase Anda
+          const SUPABASE_URL = 'https://ljmiqziybyhectnbsxgg.supabase.co';
+          const SUPABASE_ANON_KEY = 'sb_publishable_WhGbdt8mHMqdYja7RfqaHA_mhWEiKq6';
+          
+          const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+          // Ambil elemen HTML
+          const emailInput = document.getElementById('auth-email');
+          const passwordInput = document.getElementById('auth-password');
+          const btnLogin = document.getElementById('btn-login');
+          const btnRegister = document.getElementById('btn-register');
+          const alertBox = document.getElementById('auth-alert');
+
+          // Fungsi untuk menampilkan pesan
+          function showAlert(message, isError = false) {
+            alertBox.style.display = 'block';
+            alertBox.textContent = message;
+            if (isError) {
+                alertBox.className = 'alert-msg alert-error';
+            } else {
+                alertBox.className = 'alert-msg alert-success';
+            }
+          }
+
+          // =====================================
+          // FUNGSI 1: LOGIN (MASUK)
+          // =====================================
+          btnLogin.addEventListener('click', async function(e) {
+            e.preventDefault();
+            
+            if(!emailInput.value || !passwordInput.value) {
+                showAlert('Mohon isi Email dan Password terlebih dahulu.', true);
+                return;
+            }
+
+            const originalText = btnLogin.innerHTML;
+            btnLogin.innerHTML = 'Memproses...';
+            btnLogin.disabled = true;
+            btnRegister.disabled = true;
+            alertBox.style.display = 'none';
+
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: emailInput.value,
+                    password: passwordInput.value,
+                });
+
+                if (error) {
+                    showAlert('Gagal Login: ' + (error.message === 'Invalid login credentials' ? 'Email atau Password salah.' : error.message), true);
+                } else {
+                    showAlert('Login Berhasil! Mengalihkan ke Dashboard...', false);
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html'; 
+                    }, 1500);
+                }
+            } catch (err) {
+                showAlert('Terjadi kesalahan koneksi.', true);
+            } finally {
+                btnLogin.innerHTML = originalText;
+                btnLogin.disabled = false;
+                btnRegister.disabled = false;
+            }
+          });
+
+          // =====================================
+          // FUNGSI 2: REGISTER (DAFTAR BARU)
+          // =====================================
+          btnRegister.addEventListener('click', async function(e) {
+            e.preventDefault();
+            
+            if(!emailInput.value || !passwordInput.value) {
+                showAlert('Untuk mendaftar, isi kolom Email dan buat Password Anda.', true);
+                return;
+            }
+            if(passwordInput.value.length < 6) {
+                showAlert('Password minimal harus 6 karakter.', true);
+                return;
+            }
+
+            const originalText = btnRegister.innerHTML;
+            btnRegister.innerHTML = 'Mendaftarkan...';
+            btnLogin.disabled = true;
+            btnRegister.disabled = true;
+            alertBox.style.display = 'none';
+
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: emailInput.value,
+                    password: passwordInput.value,
+                });
+
+                if (error) {
+                    showAlert('Gagal Daftar: ' + error.message, true);
+                } else {
+                    // Jika sukses mendaftar
+                    showAlert('Pendaftaran Berhasil! Silakan klik tombol MASUK (LOGIN).', false);
+                    // Bersihkan password untuk keamanan
+                    passwordInput.value = '';
+                }
+            } catch (err) {
+                showAlert('Terjadi kesalahan koneksi.', true);
+            } finally {
+                btnRegister.innerHTML = originalText;
+                btnLogin.disabled = false;
+                btnRegister.disabled = false;
+            }
+          });
+          
+          // Cek jika user sudah login sebelumnya (Auto Redirect)
+          async function checkSession() {
+              const { data: { session } } = await supabase.auth.getSession();
+              if (session) {
+                  window.location.href = 'dashboard.html';
+              }
+          }
+          checkSession();
+      });
     </script>
   </body>
 </html>
