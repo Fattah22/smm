@@ -1,0 +1,550 @@
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard - Amanah SMM Premium</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --amanah-primary: #eab308; 
+            --amanah-secondary: #ca8a04; 
+            --amanah-bg: #0b0f19; 
+            --amanah-surface: #151c2f; 
+            --amanah-surface-light: rgba(30, 41, 59, 0.7);
+            --amanah-text: #f8fafc; 
+            --amanah-text-muted: #94a3b8; 
+            --amanah-border: rgba(255,255,255,0.05);
+            --sidebar-width: 260px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--amanah-bg);
+            color: var(--amanah-text);
+            display: flex;
+            min-height: 100vh;
+            background-image: radial-gradient(circle at top right, rgba(234, 179, 8, 0.05), transparent 40%),
+                              radial-gradient(circle at bottom left, rgba(234, 179, 8, 0.05), transparent 40%);
+        }
+
+        /* --- LOADING SCREEN (Mencegah layar berkedip sebelum auth selesai) --- */
+        #page-loader {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--amanah-bg);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .loader-spinner {
+            width: 40px; height: 40px;
+            border: 4px solid rgba(234, 179, 8, 0.2);
+            border-top: 4px solid var(--amanah-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: rgba(11, 15, 25, 0.8);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--amanah-border);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            margin-bottom: 40px;
+        }
+        .brand-text {
+            font-size: 22px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fde047, #ca8a04);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            text-decoration: none;
+            color: var(--amanah-text-muted);
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .nav-link i { font-size: 18px; width: 20px; text-align: center; }
+        .nav-link:hover, .nav-link.active {
+            background: rgba(234, 179, 8, 0.1);
+            color: var(--amanah-primary);
+        }
+
+        .logout-btn {
+            margin-top: auto;
+            color: #ef4444;
+            cursor: pointer;
+        }
+        .logout-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+        }
+
+        /* --- MAIN CONTENT --- */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 30px 40px;
+            max-width: 1200px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+        .greeting h2 { font-size: 24px; margin-bottom: 4px; }
+        .greeting p { color: var(--amanah-text-muted); font-size: 14px; }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--amanah-surface-light);
+            padding: 8px 16px;
+            border-radius: 50px;
+            border: 1px solid var(--amanah-border);
+        }
+        .avatar {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, var(--amanah-primary), var(--amanah-secondary));
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            color: #000; font-weight: bold; font-size: 14px;
+        }
+
+        /* --- CARDS & WIDGETS --- */
+        .balance-widget {
+            background: linear-gradient(145deg, rgba(234, 179, 8, 0.15), rgba(202, 138, 4, 0.05));
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            border-radius: 20px;
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px -10px rgba(234, 179, 8, 0.2);
+        }
+        .balance-info h4 { color: var(--amanah-primary); text-transform: uppercase; letter-spacing: 1px; font-size: 12px; margin-bottom: 8px; }
+        .balance-info h1 { font-size: 36px; font-weight: 800; letter-spacing: -1px; }
+        .deposit-btn {
+            background: linear-gradient(135deg, #fde047, #ca8a04);
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            display: flex; gap: 8px; align-items: center;
+            transition: transform 0.2s;
+        }
+        .deposit-btn:hover { transform: scale(1.05); }
+
+        .card {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9));
+            border-radius: 20px;
+            border: 1px solid var(--amanah-border);
+            padding: 30px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+        .card-header {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--amanah-border);
+        }
+        .card-header h3 { font-size: 20px; display: flex; align-items: center; gap: 10px; }
+
+        /* --- FORMS --- */
+        .form-group { margin-bottom: 20px; }
+        .form-group label {
+            display: block;
+            color: var(--amanah-text-muted);
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .form-control {
+            width: 100%;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--amanah-border);
+            color: #fff;
+            padding: 14px 16px;
+            border-radius: 12px;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .form-control:focus {
+            border-color: var(--amanah-primary);
+            box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.2);
+        }
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 16px;
+            cursor: pointer;
+        }
+        select.form-control option { background: var(--amanah-surface); color: #fff; }
+
+        .price-box {
+            background: rgba(234, 179, 8, 0.1);
+            border: 1px dashed var(--amanah-primary);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .price-box p { color: var(--amanah-primary); font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+        .price-box h2 { color: #fff; font-size: 28px; }
+
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, #fde047, #ca8a04);
+            color: #000;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 8px 25px -5px rgba(234, 179, 8, 0.4);
+        }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 30px -5px rgba(234, 179, 8, 0.6); }
+
+        /* Responsive Mobile */
+        .mobile-toggle { display: none; background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.show { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 20px; }
+            .mobile-toggle { display: block; }
+            .balance-widget { flex-direction: column; align-items: flex-start; gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Screen -->
+    <div id="page-loader">
+        <div class="loader-spinner"></div>
+        <p style="color: var(--amanah-primary); font-weight: bold; letter-spacing: 1px;">MENGHUBUNGKAN...</p>
+    </div>
+
+    <!-- Sidebar Layout -->
+    <aside class="sidebar" id="sidebar">
+        <a href="#" class="brand-logo">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="url(#gold-gradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <defs>
+                    <linearGradient id="gold-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#fde047" />
+                        <stop offset="50%" stop-color="#eab308" />
+                        <stop offset="100%" stop-color="#ca8a04" />
+                    </linearGradient>
+                </defs>
+                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                <polyline points="2 17 12 22 22 17"></polyline>
+                <polyline points="2 12 12 17 22 12"></polyline>
+            </svg>
+            <span class="brand-text">AMANAH</span>
+        </a>
+
+        <ul class="nav-menu">
+            <li><a href="#" class="nav-link active"><i class="fas fa-rocket"></i> Pesanan Baru</a></li>
+            <li><a href="#" class="nav-link"><i class="fas fa-list-alt"></i> Riwayat Pesanan</a></li>
+            <li><a href="#" class="nav-link"><i class="fas fa-wallet"></i> Isi Saldo</a></li>
+            <li><a href="#" class="nav-link"><i class="fas fa-server"></i> Daftar Layanan</a></li>
+            <li><a href="#" class="nav-link"><i class="fas fa-headset"></i> Bantuan Tiket</a></li>
+            <li><a href="#" class="nav-link logout-btn" id="btn-logout"><i class="fas fa-sign-out-alt"></i> Keluar</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('show')">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="greeting">
+                    <h2>Halo, <span id="user-display-name" style="color: var(--amanah-primary);">Member</span>!</h2>
+                    <p>Selamat datang di Premium SMM Panel</p>
+                </div>
+            </div>
+            <div class="user-profile">
+                <span id="user-email-text" style="font-size: 13px; font-weight: 600;">...</span>
+                <div class="avatar" id="user-initial">A</div>
+            </div>
+        </header>
+
+        <!-- Balance Widget -->
+        <div class="balance-widget">
+            <div class="balance-info">
+                <h4>Saldo Anda Saat Ini</h4>
+                <h1>Rp <span id="user-balance">0</span></h1>
+            </div>
+            <a href="#" class="deposit-btn">
+                <i class="fas fa-plus-circle"></i> Deposit Saldo
+            </a>
+        </div>
+
+        <!-- New Order Form -->
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-shopping-cart" style="color: var(--amanah-primary);"></i> Buat Pesanan Baru</h3>
+            </div>
+            
+            <form id="order-form">
+                <div class="form-group">
+                    <label>Kategori Layanan</label>
+                    <select class="form-control" id="category" required>
+                        <option value="" disabled selected>-- Pilih Kategori --</option>
+                        <option value="ig">Instagram Followers (Garansi)</option>
+                        <option value="ig_likes">Instagram Likes</option>
+                        <option value="tiktok">TikTok Followers / Views</option>
+                        <option value="yt">YouTube Subscribers</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Layanan (Service)</label>
+                    <select class="form-control" id="service" required>
+                        <option value="" disabled selected>-- Pilih Layanan Dahulu --</option>
+                        <!-- Pilihan layanan akan muncul dari JavaScript berdasarkan Kategori -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Link / Username Target</label>
+                    <input type="text" class="form-control" id="target-link" placeholder="Contoh: https://instagram.com/username_anda" required>
+                </div>
+
+                <div style="display: flex; gap: 20px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Jumlah Pesan (Quantity)</label>
+                        <input type="number" class="form-control" id="quantity" placeholder="Min: 100" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Min / Max Pesan</label>
+                        <input type="text" class="form-control" id="min-max" value="100 / 10.000" disabled style="opacity: 0.7;">
+                    </div>
+                </div>
+
+                <!-- Kalkulasi Harga -->
+                <div class="price-box">
+                    <p>Total Harga Pembayaran</p>
+                    <h2 id="total-charge">Rp 0</h2>
+                </div>
+
+                <button type="submit" class="btn-submit" id="btn-submit-order">
+                    PROSES PESANAN SEKARANG
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <!-- ========================================== -->
+    <!-- LOGIC DASHBOARD & SUPABASE -->
+    <!-- ========================================== -->
+    <script>
+        // 1. Inisialisasi Supabase
+        const SUPABASE_URL = 'https://ljmiqziybyhectnbsxgg.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_WhGbdt8mHMqdYja7RfqaHA_mhWEiKq6';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // 2. CEK AUTENTIKASI (PENTING!)
+        // Melindungi halaman: Jika tidak ada session (belum login), kembalikan ke index.html
+        async function checkAuth() {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            
+            if (!session) {
+                // User belum login, tendang ke luar
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Jika berhasil masuk, hilangkan layar loading
+            document.getElementById('page-loader').style.display = 'none';
+
+            // Ambil data user
+            const user = session.user;
+            const email = user.email;
+            
+            // Tampilkan info user di Header UI
+            document.getElementById('user-email-text').innerText = email;
+            document.getElementById('user-initial').innerText = email.charAt(0).toUpperCase();
+            
+            // Ambil username dari depan email untuk sapaan
+            const username = email.split('@')[0];
+            document.getElementById('user-display-name').innerText = username.charAt(0).toUpperCase() + username.slice(1);
+            
+            // Catatan: Saldo (Balance) idealnya ditarik dari Database Supabase Anda.
+            // Di sini kita tampilkan angka dummy untuk UI.
+            document.getElementById('user-balance').innerText = "150.000"; 
+        }
+        
+        // Jalankan pengecekan auth saat halaman dimuat
+        checkAuth();
+
+        // 3. FUNGSI LOGOUT
+        document.getElementById('btn-logout').addEventListener('click', async (e) => {
+            e.preventDefault();
+            document.getElementById('page-loader').style.display = 'flex'; // Tampilkan loading
+            await supabase.auth.signOut();
+            window.location.href = 'index.html'; // Kembali ke login
+        });
+
+        // 4. LOGIK PEMESANAN (UI Interaktif)
+        // Dummy Data Layanan (Idealnya ditarik dari Peakerr API menggunakan fetch ke api.php)
+        const servicesData = {
+            'ig': [
+                { id: 101, name: "Instagram Followers [Garansi 30 Hari] - Super Cepat", pricePer1k: 15000, min: 100, max: 10000 },
+                { id: 102, name: "Instagram Followers [No Drop] - Real Akun Indo", pricePer1k: 35000, min: 100, max: 5000 }
+            ],
+            'ig_likes': [
+                { id: 201, name: "Instagram Likes [Instant] - Server Premium", pricePer1k: 5000, min: 50, max: 50000 }
+            ]
+        };
+
+        const categorySelect = document.getElementById('category');
+        const serviceSelect = document.getElementById('service');
+        const quantityInput = document.getElementById('quantity');
+        const totalChargeDisplay = document.getElementById('total-charge');
+        const minMaxDisplay = document.getElementById('min-max');
+        
+        let currentSelectedService = null;
+
+        // Ketika Kategori dipilih, ubah isi dropdown Layanan
+        categorySelect.addEventListener('change', function() {
+            const cat = this.value;
+            serviceSelect.innerHTML = '<option value="" disabled selected>-- Pilih Layanan --</option>';
+            
+            if (servicesData[cat]) {
+                servicesData[cat].forEach(srv => {
+                    const option = document.createElement('option');
+                    option.value = srv.id;
+                    option.dataset.price = srv.pricePer1k;
+                    option.dataset.min = srv.min;
+                    option.dataset.max = srv.max;
+                    option.textContent = `ID ${srv.id} - ${srv.name} (Rp ${srv.pricePer1k.toLocaleString('id-ID')} / 1000)`;
+                    serviceSelect.appendChild(option);
+                });
+            }
+        });
+
+        // Ketika Layanan dipilih, perbarui batas min/max dan hitung ulang
+        serviceSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            currentSelectedService = {
+                price: parseFloat(selectedOption.dataset.price),
+                min: parseInt(selectedOption.dataset.min),
+                max: parseInt(selectedOption.dataset.max)
+            };
+            
+            minMaxDisplay.value = `${currentSelectedService.min} / ${currentSelectedService.max}`;
+            quantityInput.min = currentSelectedService.min;
+            quantityInput.max = currentSelectedService.max;
+            quantityInput.placeholder = `Min: ${currentSelectedService.min}`;
+            
+            calculatePrice();
+        });
+
+        // Hitung harga otomatis saat mengetik jumlah
+        quantityInput.addEventListener('input', calculatePrice);
+
+        function calculatePrice() {
+            if (!currentSelectedService || !quantityInput.value) {
+                totalChargeDisplay.innerText = "Rp 0";
+                return;
+            }
+            
+            const qty = parseInt(quantityInput.value);
+            // Rumus: (Harga Per 1000 / 1000) * Jumlah Pesan
+            const totalPrice = (currentSelectedService.price / 1000) * qty;
+            
+            if (qty > 0) {
+                totalChargeDisplay.innerText = `Rp ${Math.round(totalPrice).toLocaleString('id-ID')}`;
+            } else {
+                totalChargeDisplay.innerText = "Rp 0";
+            }
+        }
+
+        // Form Submit Simulasi
+        document.getElementById('order-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-submit-order');
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> MEMPROSES...';
+            btn.disabled = true;
+
+            // Di sini tempat Anda menembak API pemesanan ke `api.php`
+            // simulasi loading...
+            setTimeout(() => {
+                alert("Berhasil! Pesanan Anda telah masuk ke sistem.");
+                btn.innerHTML = 'PROSES PESANAN SEKARANG';
+                btn.disabled = false;
+                document.getElementById('order-form').reset();
+                totalChargeDisplay.innerText = "Rp 0";
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
+
+```
