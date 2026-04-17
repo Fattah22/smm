@@ -44,27 +44,6 @@
                               radial-gradient(circle at bottom left, rgba(234, 179, 8, 0.05), transparent 40%);
         }
 
-        /* --- LOADING SCREEN (Mencegah layar berkedip sebelum auth selesai) --- */
-        #page-loader {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--amanah-bg);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .loader-spinner {
-            width: 40px; height: 40px;
-            border: 4px solid rgba(234, 179, 8, 0.2);
-            border-top: 4px solid var(--amanah-primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
         /* --- SIDEBAR --- */
         .sidebar {
             width: var(--sidebar-width);
@@ -112,6 +91,7 @@
             border-radius: 12px;
             font-weight: 600;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
         .nav-link i { font-size: 18px; width: 20px; text-align: center; }
         .nav-link:hover, .nav-link.active {
@@ -122,20 +102,28 @@
         .logout-btn {
             margin-top: auto;
             color: #ef4444;
-            cursor: pointer;
         }
         .logout-btn:hover {
             background: rgba(239, 68, 68, 0.1);
             color: #f87171;
         }
 
-        /* --- MAIN CONTENT --- */
+        /* --- MAIN CONTENT & VIEWS --- */
         .main-content {
             margin-left: var(--sidebar-width);
             flex: 1;
             padding: 30px 40px;
             max-width: 1200px;
         }
+        
+        .view-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .view-section.active {
+            display: block;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         .header {
             display: flex;
@@ -163,7 +151,7 @@
             color: #000; font-weight: bold; font-size: 14px;
         }
 
-        /* --- CARDS & WIDGETS --- */
+        /* --- WIDGETS --- */
         .balance-widget {
             background: linear-gradient(145deg, rgba(234, 179, 8, 0.15), rgba(202, 138, 4, 0.05));
             border: 1px solid rgba(234, 179, 8, 0.3);
@@ -177,17 +165,6 @@
         }
         .balance-info h4 { color: var(--amanah-primary); text-transform: uppercase; letter-spacing: 1px; font-size: 12px; margin-bottom: 8px; }
         .balance-info h1 { font-size: 36px; font-weight: 800; letter-spacing: -1px; }
-        .deposit-btn {
-            background: linear-gradient(135deg, #fde047, #ca8a04);
-            color: #000;
-            padding: 12px 24px;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: 700;
-            display: flex; gap: 8px; align-items: center;
-            transition: transform 0.2s;
-        }
-        .deposit-btn:hover { transform: scale(1.05); }
 
         .card {
             background: linear-gradient(145deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9));
@@ -196,6 +173,7 @@
             padding: 30px;
             backdrop-filter: blur(12px);
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            margin-bottom: 30px;
         }
         .card-header {
             margin-bottom: 24px;
@@ -230,14 +208,6 @@
             border-color: var(--amanah-primary);
             box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.2);
         }
-        select.form-control {
-            appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 16px center;
-            background-size: 16px;
-            cursor: pointer;
-        }
         select.form-control option { background: var(--amanah-surface); color: #fff; }
 
         .price-box {
@@ -266,26 +236,33 @@
             transition: all 0.3s;
             box-shadow: 0 8px 25px -5px rgba(234, 179, 8, 0.4);
         }
-        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 30px -5px rgba(234, 179, 8, 0.6); }
+        .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; }
+        .btn-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 30px -5px rgba(234, 179, 8, 0.6); }
+
+        /* --- TABLE --- */
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 16px; text-align: left; border-bottom: 1px solid var(--amanah-border); }
+        th { color: var(--amanah-text-muted); font-size: 13px; text-transform: uppercase; letter-spacing: 1px; }
+        td { font-size: 14px; }
+        .badge { padding: 6px 12px; border-radius: 50px; font-size: 12px; font-weight: bold; }
+        .badge.pending { background: rgba(234, 179, 8, 0.2); color: #fde047; }
+        .badge.success { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .badge.canceled { background: rgba(239, 68, 68, 0.2); color: #f87171; }
 
         /* Responsive Mobile */
         .mobile-toggle { display: none; background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; }
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.show { transform: translateX(0); }
-            .main-content { margin-left: 0; padding: 20px; }
-            .mobile-toggle { display: block; }
+            .main-content { margin-left: 0; padding: 20px; margin-top: 50px; }
+            .mobile-toggle { display: block; position: absolute; left: 20px; top: 20px; }
             .balance-widget { flex-direction: column; align-items: flex-start; gap: 20px; }
+            .header { margin-bottom: 20px; flex-direction: column; align-items: flex-end; gap: 15px; }
         }
     </style>
 </head>
 <body>
-
-    <!-- Loading Screen -->
-    <div id="page-loader">
-        <div class="loader-spinner"></div>
-        <p style="color: var(--amanah-primary); font-weight: bold; letter-spacing: 1px;">MENGHUBUNGKAN...</p>
-    </div>
 
     <!-- Sidebar Layout -->
     <aside class="sidebar" id="sidebar">
@@ -306,11 +283,9 @@
         </a>
 
         <ul class="nav-menu">
-            <li><a href="#" class="nav-link active"><i class="fas fa-rocket"></i> Pesanan Baru</a></li>
-            <li><a href="#" class="nav-link"><i class="fas fa-list-alt"></i> Riwayat Pesanan</a></li>
-            <li><a href="#" class="nav-link"><i class="fas fa-wallet"></i> Isi Saldo</a></li>
-            <li><a href="#" class="nav-link"><i class="fas fa-server"></i> Daftar Layanan</a></li>
-            <li><a href="#" class="nav-link"><i class="fas fa-headset"></i> Bantuan Tiket</a></li>
+            <li><a class="nav-link active" onclick="switchView('view-new-order', this)"><i class="fas fa-rocket"></i> Pesanan Baru</a></li>
+            <li><a class="nav-link" onclick="switchView('view-history', this)"><i class="fas fa-list-alt"></i> Riwayat Pesanan</a></li>
+            <li><a class="nav-link" onclick="switchView('view-deposit', this)"><i class="fas fa-wallet"></i> Isi Saldo</a></li>
             <li><a href="#" class="nav-link logout-btn" id="btn-logout"><i class="fas fa-sign-out-alt"></i> Keluar</a></li>
         </ul>
     </aside>
@@ -319,18 +294,18 @@
     <main class="main-content">
         <!-- Header -->
         <header class="header">
-            <div style="display: flex; align-items: center; gap: 15px;">
+            <div style="display: flex; align-items: center; gap: 15px; width: 100%;">
                 <button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('show')">
                     <i class="fas fa-bars"></i>
                 </button>
-                <div class="greeting">
+                <div class="greeting" style="flex: 1;">
                     <h2>Halo, <span id="user-display-name" style="color: var(--amanah-primary);">Member</span>!</h2>
                     <p>Selamat datang di Premium SMM Panel</p>
                 </div>
-            </div>
-            <div class="user-profile">
-                <span id="user-email-text" style="font-size: 13px; font-weight: 600;">...</span>
-                <div class="avatar" id="user-initial">A</div>
+                <div class="user-profile">
+                    <span id="user-email-text" style="font-size: 13px; font-weight: 600;">...</span>
+                    <div class="avatar" id="user-initial">?</div>
+                </div>
             </div>
         </header>
 
@@ -338,213 +313,510 @@
         <div class="balance-widget">
             <div class="balance-info">
                 <h4>Saldo Anda Saat Ini</h4>
-                <h1>Rp <span id="user-balance">0</span></h1>
+                <h1>Rp <span id="user-balance">Memuat...</span></h1>
             </div>
-            <a href="#" class="deposit-btn">
-                <i class="fas fa-plus-circle"></i> Deposit Saldo
+            <a onclick="switchView('view-deposit', document.querySelectorAll('.nav-link')[2])" class="btn-submit" style="width: auto; padding: 12px 24px; display: inline-flex; align-items: center; gap: 10px; font-size: 14px;">
+                <i class="fas fa-plus-circle"></i> Deposit
             </a>
         </div>
 
-        <!-- New Order Form -->
-        <div class="card">
-            <div class="card-header">
-                <h3><i class="fas fa-shopping-cart" style="color: var(--amanah-primary);"></i> Buat Pesanan Baru</h3>
+        <!-- ============================================== -->
+        <!-- VIEW 1: PESANAN BARU -->
+        <!-- ============================================== -->
+        <div id="view-new-order" class="view-section active">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-shopping-cart" style="color: var(--amanah-primary);"></i> Buat Pesanan Baru</h3>
+                </div>
+                
+                <form id="order-form">
+                    <div class="form-group">
+                        <label>Kategori Layanan</label>
+                        <select class="form-control" id="category" required>
+                            <option value="" disabled selected>Sedang menarik data dari Server Pusat...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Layanan (Service)</label>
+                        <select class="form-control" id="service" required>
+                            <option value="" disabled selected>-- Pilih Kategori Dahulu --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Link / Username Target</label>
+                        <input type="text" class="form-control" id="target-link" placeholder="Contoh: https://instagram.com/username_anda" required>
+                    </div>
+
+                    <div style="display: flex; gap: 20px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Jumlah Pesan (Quantity)</label>
+                            <input type="number" class="form-control" id="quantity" placeholder="0" required>
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>Min / Max Pesan</label>
+                            <input type="text" class="form-control" id="min-max" value="-" disabled style="opacity: 0.7;">
+                        </div>
+                    </div>
+
+                    <div class="price-box">
+                        <p>Total Harga Pembayaran</p>
+                        <h2 id="total-charge">Rp 0</h2>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="btn-submit-order" disabled>
+                        TUNGGU LAYANAN DIMUAT...
+                    </button>
+                </form>
             </div>
-            
-            <form id="order-form">
-                <div class="form-group">
-                    <label>Kategori Layanan</label>
-                    <select class="form-control" id="category" required>
-                        <option value="" disabled selected>-- Pilih Kategori --</option>
-                        <option value="ig">Instagram Followers (Garansi)</option>
-                        <option value="ig_likes">Instagram Likes</option>
-                        <option value="tiktok">TikTok Followers / Views</option>
-                        <option value="yt">YouTube Subscribers</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Layanan (Service)</label>
-                    <select class="form-control" id="service" required>
-                        <option value="" disabled selected>-- Pilih Layanan Dahulu --</option>
-                        <!-- Pilihan layanan akan muncul dari JavaScript berdasarkan Kategori -->
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Link / Username Target</label>
-                    <input type="text" class="form-control" id="target-link" placeholder="Contoh: https://instagram.com/username_anda" required>
-                </div>
-
-                <div style="display: flex; gap: 20px;">
-                    <div class="form-group" style="flex: 1;">
-                        <label>Jumlah Pesan (Quantity)</label>
-                        <input type="number" class="form-control" id="quantity" placeholder="Min: 100" required>
-                    </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label>Min / Max Pesan</label>
-                        <input type="text" class="form-control" id="min-max" value="100 / 10.000" disabled style="opacity: 0.7;">
-                    </div>
-                </div>
-
-                <!-- Kalkulasi Harga -->
-                <div class="price-box">
-                    <p>Total Harga Pembayaran</p>
-                    <h2 id="total-charge">Rp 0</h2>
-                </div>
-
-                <button type="submit" class="btn-submit" id="btn-submit-order">
-                    PROSES PESANAN SEKARANG
-                </button>
-            </form>
         </div>
+
+        <!-- ============================================== -->
+        <!-- VIEW 2: RIWAYAT PESANAN -->
+        <!-- ============================================== -->
+        <div id="view-history" class="view-section">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-list-alt" style="color: var(--amanah-primary);"></i> Riwayat Pesanan Anda</h3>
+                </div>
+                <div class="table-responsive">
+                    <table id="history-table">
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Layanan</th>
+                                <th>Target</th>
+                                <th>Jumlah</th>
+                                <th>Harga</th>
+                                <th>Status API</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-body">
+                            <tr><td colspan="6" style="text-align:center; padding: 20px;">Klik untuk memuat riwayat...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- VIEW 3: ISI SALDO (DEPOSIT) -->
+        <!-- ============================================== -->
+        <div id="view-deposit" class="view-section">
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-wallet" style="color: var(--amanah-primary);"></i> Permintaan Isi Saldo</h3>
+                </div>
+                <div class="price-box" style="background: rgba(16, 185, 129, 0.1); border-color: var(--amanah-accent);">
+                    <p style="color: var(--amanah-accent);">Pembayaran Otomatis</p>
+                    <h4 style="color: #fff; font-size: 16px;">Scan QRIS / Transfer lalu isi form di bawah.</h4>
+                </div>
+                <form id="deposit-form">
+                    <div class="form-group">
+                        <label>Metode Pembayaran</label>
+                        <select class="form-control" id="deposit-method" required>
+                            <option value="" disabled selected>-- Pilih Bank / E-Wallet --</option>
+                            <option value="QRIS">QRIS All Payment (Gopay/Dana/Shopee)</option>
+                            <option value="BCA">BCA Transfer</option>
+                            <option value="MANDIRI">Mandiri Transfer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Jumlah Nominal (Rp)</label>
+                        <input type="number" class="form-control" id="deposit-amount" placeholder="Minimal Rp 10.000" min="10000" required>
+                    </div>
+                    <button type="submit" class="btn-submit" id="btn-submit-deposit">
+                        KIRIM PERMINTAAN DEPOSIT
+                    </button>
+                </form>
+            </div>
+        </div>
+
     </main>
 
     <!-- ========================================== -->
-    <!-- LOGIC DASHBOARD & SUPABASE -->
+    <!-- LOGIC DASHBOARD, SUPABASE & PEAKERR API -->
     <!-- ========================================== -->
     <script>
-        // 1. Inisialisasi Supabase
-        const SUPABASE_URL = 'https://ljmiqziybyhectnbsxgg.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_WhGbdt8mHMqdYja7RfqaHA_mhWEiKq6';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let currentUser = null;
+        let currentBalance = 0;
+        let allApiServices = []; // Variabel untuk menyimpan data asli dari Peakerr
+        
+        // KONFIGURASI API (Hati-hati menyimpan API Key di HTML public)
+        const PEAKERR_API_URL = "https://peakerr.com/api/v2";
+        const PEAKERR_API_KEY = "71cbca8935a28e59a8915f8d23c408ed";
 
-        // 2. CEK AUTENTIKASI (PENTING!)
-        // Melindungi halaman: Jika tidak ada session (belum login), kembalikan ke index.html
-        async function checkAuth() {
-            const { data: { session }, error } = await supabase.auth.getSession();
+        // ==== FUNGSI NAVIGASI TAB (VIEW) ====
+        function switchView(viewId, element) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
             
-            if (!session) {
-                // User belum login, tendang ke luar
-                window.location.href = 'index.html';
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById('sidebar').classList.remove('show');
+
+            if (viewId === 'view-history') loadHistory();
+        }
+
+        const formatRp = (angka) => parseFloat(angka).toLocaleString('id-ID');
+
+        // ==== SISTEM UTAMA (TANPA LOADING MENGGANGGU) ====
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (typeof window.supabase === 'undefined') {
+                alert('Gagal menyambung ke Database. Harap pastikan internet stabil dan matikan pemblokir iklan (AdBlock).');
                 return;
             }
 
-            // Jika berhasil masuk, hilangkan layar loading
-            document.getElementById('page-loader').style.display = 'none';
+            const SUPABASE_URL = 'https://ljmiqziybyhectnbsxgg.supabase.co';
+            const SUPABASE_ANON_KEY = 'sb_publishable_WhGbdt8mHMqdYja7RfqaHA_mhWEiKq6';
+            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-            // Ambil data user
-            const user = session.user;
-            const email = user.email;
-            
-            // Tampilkan info user di Header UI
-            document.getElementById('user-email-text').innerText = email;
-            document.getElementById('user-initial').innerText = email.charAt(0).toUpperCase();
-            
-            // Ambil username dari depan email untuk sapaan
-            const username = email.split('@')[0];
-            document.getElementById('user-display-name').innerText = username.charAt(0).toUpperCase() + username.slice(1);
-            
-            // Catatan: Saldo (Balance) idealnya ditarik dari Database Supabase Anda.
-            // Di sini kita tampilkan angka dummy untuk UI.
-            document.getElementById('user-balance').innerText = "150.000"; 
-        }
-        
-        // Jalankan pengecekan auth saat halaman dimuat
-        checkAuth();
+            try {
+                // Cek Login
+                const { data: { session }, error: authError } = await supabase.auth.getSession();
+                if (!session || authError) {
+                    alert("Anda belum login atau sesi telah habis.");
+                    window.location.replace('index.html');
+                    return;
+                }
 
-        // 3. FUNGSI LOGOUT
-        document.getElementById('btn-logout').addEventListener('click', async (e) => {
-            e.preventDefault();
-            document.getElementById('page-loader').style.display = 'flex'; // Tampilkan loading
-            await supabase.auth.signOut();
-            window.location.href = 'index.html'; // Kembali ke login
+                currentUser = session.user;
+                const email = currentUser.email || 'Member';
+                
+                document.getElementById('user-email-text').innerText = email;
+                document.getElementById('user-initial').innerText = email.charAt(0).toUpperCase();
+                const username = email.split('@')[0];
+                document.getElementById('user-display-name').innerText = username.charAt(0).toUpperCase() + username.slice(1);
+                
+                // Tarik Saldo dan Daftar Layanan Peakerr secara bersamaan
+                fetchBalance(supabase);
+                fetchPeakerrServices();
+
+                document.getElementById('btn-logout').addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    await supabase.auth.signOut();
+                    window.location.replace('index.html');
+                });
+
+            } catch (err) {
+                console.error(err);
+            }
         });
 
-        // 4. LOGIK PEMESANAN (UI Interaktif)
-        // Dummy Data Layanan (Idealnya ditarik dari Peakerr API menggunakan fetch ke api.php)
-        const servicesData = {
-            'ig': [
-                { id: 101, name: "Instagram Followers [Garansi 30 Hari] - Super Cepat", pricePer1k: 15000, min: 100, max: 10000 },
-                { id: 102, name: "Instagram Followers [No Drop] - Real Akun Indo", pricePer1k: 35000, min: 100, max: 5000 }
-            ],
-            'ig_likes': [
-                { id: 201, name: "Instagram Likes [Instant] - Server Premium", pricePer1k: 5000, min: 50, max: 50000 }
-            ]
-        };
+        // ==== 1. AMBIL SALDO DARI DATABASE ====
+        async function fetchBalance(supabase) {
+            try {
+                const { data: profile, error } = await supabase
+                    .from('profiles')
+                    .select('balance')
+                    .eq('id', currentUser.id)
+                    .single();
 
+                if (profile && profile.balance !== null) {
+                    currentBalance = parseFloat(profile.balance);
+                    document.getElementById('user-balance').innerText = formatRp(currentBalance);
+                } else {
+                    document.getElementById('user-balance').innerText = "0";
+                }
+            } catch (err) {
+                document.getElementById('user-balance').innerText = "Gagal";
+            }
+        }
+
+        // ==== 2. AMBIL LAYANAN DARI PEAKERR (API V2) ====
+        async function fetchPeakerrServices() {
+            try {
+                const formData = new FormData();
+                formData.append('key', PEAKERR_API_KEY);
+                formData.append('action', 'services');
+
+                // Menggunakan proxy untuk mencegah blokir CORS di browser Github Pages
+                const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(PEAKERR_API_URL);
+
+                const response = await fetch(proxyUrl, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (Array.isArray(data)) {
+                    allApiServices = data; // Simpan ke variabel global
+                    populateCategories();
+                    
+                    const btn = document.getElementById('btn-submit-order');
+                    btn.innerHTML = 'PROSES PESANAN SEKARANG';
+                    btn.disabled = false;
+                } else {
+                    throw new Error("Respons API Peakerr tidak valid");
+                }
+            } catch (err) {
+                console.error("API Fetch Error:", err);
+                document.getElementById('category').innerHTML = '<option disabled selected>Gagal memuat API Peakerr. Cek Console.</option>';
+            }
+        }
+
+        function populateCategories() {
+            const categorySelect = document.getElementById('category');
+            categorySelect.innerHTML = '<option value="" disabled selected>-- Pilih Kategori Layanan --</option>';
+
+            // Ekstrak kategori unik dari data API
+            const categories = [...new Set(allApiServices.map(item => item.category))];
+
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                categorySelect.appendChild(option);
+            });
+        }
+
+        // ==== 3. LOGIKA FORM BERDASARKAN API ====
         const categorySelect = document.getElementById('category');
         const serviceSelect = document.getElementById('service');
         const quantityInput = document.getElementById('quantity');
         const totalChargeDisplay = document.getElementById('total-charge');
-        const minMaxDisplay = document.getElementById('min-max');
+        const targetInput = document.getElementById('target-link');
         
         let currentSelectedService = null;
+        let currentTotalPrice = 0;
 
-        // Ketika Kategori dipilih, ubah isi dropdown Layanan
         categorySelect.addEventListener('change', function() {
-            const cat = this.value;
-            serviceSelect.innerHTML = '<option value="" disabled selected>-- Pilih Layanan --</option>';
+            const selectedCategory = this.value;
+            serviceSelect.innerHTML = '<option value="" disabled selected>-- Pilih Layanan Spesifik --</option>';
             
-            if (servicesData[cat]) {
-                servicesData[cat].forEach(srv => {
-                    const option = document.createElement('option');
-                    option.value = srv.id;
-                    option.dataset.price = srv.pricePer1k;
-                    option.dataset.min = srv.min;
-                    option.dataset.max = srv.max;
-                    option.textContent = `ID ${srv.id} - ${srv.name} (Rp ${srv.pricePer1k.toLocaleString('id-ID')} / 1000)`;
-                    serviceSelect.appendChild(option);
-                });
-            }
-        });
+            // Saring layanan berdasarkan kategori yang dipilih
+            const filteredServices = allApiServices.filter(item => item.category === selectedCategory);
 
-        // Ketika Layanan dipilih, perbarui batas min/max dan hitung ulang
-        serviceSelect.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex];
-            currentSelectedService = {
-                price: parseFloat(selectedOption.dataset.price),
-                min: parseInt(selectedOption.dataset.min),
-                max: parseInt(selectedOption.dataset.max)
-            };
+            filteredServices.forEach(srv => {
+                const option = document.createElement('option');
+                option.value = srv.service; // Menggunakan ID service asli dari Peakerr
+                option.dataset.price = srv.rate; // Harga per 1000
+                option.dataset.min = srv.min;
+                option.dataset.max = srv.max;
+                option.dataset.name = srv.name;
+                
+                // Batasi nama agar tidak terlalu panjang merusak UI
+                let shortName = srv.name.length > 50 ? srv.name.substring(0, 50) + "..." : srv.name;
+                option.textContent = `ID ${srv.service} | ${shortName} (Rp ${formatRp(srv.rate)} / 1K)`;
+                serviceSelect.appendChild(option);
+            });
             
-            minMaxDisplay.value = `${currentSelectedService.min} / ${currentSelectedService.max}`;
-            quantityInput.min = currentSelectedService.min;
-            quantityInput.max = currentSelectedService.max;
-            quantityInput.placeholder = `Min: ${currentSelectedService.min}`;
-            
+            quantityInput.value = '';
             calculatePrice();
         });
 
-        // Hitung harga otomatis saat mengetik jumlah
+        serviceSelect.addEventListener('change', function() {
+            const selected = this.options[this.selectedIndex];
+            currentSelectedService = {
+                id: selected.value, // String ID
+                name: selected.dataset.name,
+                price: parseFloat(selected.dataset.price),
+                min: parseInt(selected.dataset.min),
+                max: parseInt(selected.dataset.max)
+            };
+            document.getElementById('min-max').value = `${currentSelectedService.min} / ${formatRp(currentSelectedService.max)}`;
+            quantityInput.min = currentSelectedService.min;
+            quantityInput.max = currentSelectedService.max;
+            quantityInput.placeholder = `Min: ${currentSelectedService.min}`;
+            calculatePrice();
+        });
+
         quantityInput.addEventListener('input', calculatePrice);
 
         function calculatePrice() {
             if (!currentSelectedService || !quantityInput.value) {
                 totalChargeDisplay.innerText = "Rp 0";
+                currentTotalPrice = 0;
                 return;
             }
-            
             const qty = parseInt(quantityInput.value);
-            // Rumus: (Harga Per 1000 / 1000) * Jumlah Pesan
-            const totalPrice = (currentSelectedService.price / 1000) * qty;
+            currentTotalPrice = (currentSelectedService.price / 1000) * qty;
+            totalChargeDisplay.innerText = qty > 0 ? `Rp ${formatRp(currentTotalPrice)}` : "Rp 0";
+        }
+
+        // ==============================================
+        // 4. SUBMIT PESANAN: KE PEAKERR -> LALU KE DATABASE
+        // ==============================================
+        document.getElementById('order-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
             
-            if (qty > 0) {
-                totalChargeDisplay.innerText = `Rp ${Math.round(totalPrice).toLocaleString('id-ID')}`;
-            } else {
+            if (!currentSelectedService) {
+                alert("Silakan pilih layanan terlebih dahulu.");
+                return;
+            }
+
+            const qty = parseInt(quantityInput.value);
+            if(qty < currentSelectedService.min || qty > currentSelectedService.max) {
+                alert(`Jumlah harus antara ${currentSelectedService.min} sampai ${currentSelectedService.max}`);
+                return;
+            }
+
+            if (currentBalance < currentTotalPrice) {
+                alert('Saldo Anda tidak mencukupi! Silakan isi saldo.');
+                return;
+            }
+
+            const btn = document.getElementById('btn-submit-order');
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> MENGIRIM KE API...';
+            btn.disabled = true;
+
+            try {
+                // TAHAP 1: Kirim Order ke API Peakerr
+                const orderData = new FormData();
+                orderData.append('key', PEAKERR_API_KEY);
+                orderData.append('action', 'add');
+                orderData.append('service', currentSelectedService.id);
+                orderData.append('link', targetInput.value);
+                orderData.append('quantity', qty);
+
+                const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(PEAKERR_API_URL);
+                const apiResponse = await fetch(proxyUrl, {
+                    method: 'POST',
+                    body: orderData
+                });
+                
+                const apiResult = await apiResponse.json();
+
+                // Jika Peakerr menolak (Misal link salah)
+                if (apiResult.error) {
+                    throw new Error("Peakerr API: " + apiResult.error);
+                }
+
+                // TAHAP 2: Order di Peakerr sukses! Kurangi Saldo di Database
+                const orderIdDariPeakerr = apiResult.order;
+                const supabase = window.supabase.createClient('https://ljmiqziybyhectnbsxgg.supabase.co', 'sb_publishable_WhGbdt8mHMqdYja7RfqaHA_mhWEiKq6');
+                
+                const newBalance = currentBalance - currentTotalPrice;
+                const { error: updateError } = await supabase
+                    .from('profiles')
+                    .update({ balance: newBalance })
+                    .eq('id', currentUser.id);
+
+                if (updateError) console.error("Gagal potong saldo:", updateError);
+
+                // TAHAP 3: Catat ke Tabel Riwayat
+                const { error: insertError } = await supabase
+                    .from('orders')
+                    .insert({
+                        user_id: currentUser.id,
+                        api_order_id: String(orderIdDariPeakerr), // Catat ID resi Peakerr
+                        service_id: parseInt(currentSelectedService.id),
+                        service_name: currentSelectedService.name,
+                        target_link: targetInput.value,
+                        quantity: qty,
+                        price: currentTotalPrice,
+                        status: 'Pending'
+                    });
+
+                // Berhasil Sempurna
+                alert(`Pesanan Sukses Dibuat!\nOrder ID Peakerr: ${orderIdDariPeakerr}\nSaldo dipotong: Rp ${formatRp(currentTotalPrice)}`);
+                
+                currentBalance = newBalance;
+                document.getElementById('user-balance').innerText = formatRp(currentBalance);
+                document.getElementById('order-form').reset();
                 totalChargeDisplay.innerText = "Rp 0";
+                
+                // Kembali ke Kategori default
+                document.getElementById('service').innerHTML = '<option value="" disabled selected>-- Pilih Kategori Dahulu --</option>';
+
+            } catch(err) {
+                console.error(err);
+                alert("Gagal memproses pesanan.\nAlasan: " + err.message);
+            } finally {
+                btn.innerHTML = 'PROSES PESANAN SEKARANG';
+                btn.disabled = false;
+            }
+        });
+
+        // ==============================================
+        // 5. RIWAYAT PESANAN
+        // ==============================================
+        async function loadHistory() {
+            const tbody = document.getElementById('history-body');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Memuat data riwayat Anda...</td></tr>';
+
+            try {
+                const supabase = window.supabase.createClient('https://ljmiqziybyhectnbsxgg.supabase.co', 'sb_publishable_WhGbdt8mHMqdYja7RfqaHA_mhWEiKq6');
+                const { data: orders, error } = await supabase
+                    .from('orders')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+
+                if (error || !orders) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: red;">Gagal memuat riwayat.</td></tr>';
+                    return;
+                }
+
+                if (orders.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Belum ada riwayat pesanan. Ayo buat pesanan pertama Anda!</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                orders.forEach(order => {
+                    const date = new Date(order.created_at).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'});
+                    
+                    let badgeClass = 'pending';
+                    if(order.status.toLowerCase() === 'success') badgeClass = 'success';
+                    else if(order.status.toLowerCase() === 'canceled') badgeClass = 'canceled';
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${date} <br><small style="color:var(--amanah-text-muted)">Resi: ${order.api_order_id || '-'}</small></td>
+                        <td><strong>${order.service_name.substring(0, 30)}...</strong><br><small style="color:var(--amanah-primary)">ID: ${order.service_id}</small></td>
+                        <td><a href="${order.target_link}" target="_blank" style="color:var(--amanah-text)">Target Link</a></td>
+                        <td>${formatRp(order.quantity)}</td>
+                        <td>Rp ${formatRp(order.price)}</td>
+                        <td><span class="badge ${badgeClass}">${order.status}</span></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch(e) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color: red;">Koneksi terputus.</td></tr>';
             }
         }
 
-        // Form Submit Simulasi
-        document.getElementById('order-form').addEventListener('submit', (e) => {
+        // ==============================================
+        // 6. SUBMIT DEPOSIT
+        // ==============================================
+        document.getElementById('deposit-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('btn-submit-order');
-            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> MEMPROSES...';
+            const method = document.getElementById('deposit-method').value;
+            const amount = document.getElementById('deposit-amount').value;
+            
+            const btn = document.getElementById('btn-submit-deposit');
+            btn.innerHTML = 'MEMPROSES...';
             btn.disabled = true;
 
-            // Di sini tempat Anda menembak API pemesanan ke `api.php`
-            // simulasi loading...
-            setTimeout(() => {
-                alert("Berhasil! Pesanan Anda telah masuk ke sistem.");
-                btn.innerHTML = 'PROSES PESANAN SEKARANG';
+            try {
+                const supabase = window.supabase.createClient('https://ljmiqziybyhectnbsxgg.supabase.co', 'sb_publishable_WhGbdt8mHMqdYja7RfqaHA_mhWEiKq6');
+                const { error } = await supabase
+                    .from('deposits')
+                    .insert({
+                        user_id: currentUser.id,
+                        amount: amount,
+                        payment_method: method,
+                        status: 'Unpaid'
+                    });
+                
+                if (error) throw error;
+                
+                alert(`Permintaan Deposit berhasil dicatat.\n\nSilakan transfer Rp ${formatRp(amount)} ke rekening ${method} kami.\nHubungi admin via Tiket/WA untuk konfirmasi pembayaran.`);
+                document.getElementById('deposit-form').reset();
+            } catch(err) {
+                console.error(err);
+                alert("Gagal memproses permintaan deposit.");
+            } finally {
+                btn.innerHTML = 'KIRIM PERMINTAAN DEPOSIT';
                 btn.disabled = false;
-                document.getElementById('order-form').reset();
-                totalChargeDisplay.innerText = "Rp 0";
-            }, 2000);
+            }
         });
     </script>
 </body>
 </html>
+
 
 ```
